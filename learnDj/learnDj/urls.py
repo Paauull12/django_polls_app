@@ -22,11 +22,11 @@ from . import views
 from users_auth import views as views_auth
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', include("polls.urls")),
+    path('nothing/', views.home, name='home'),
     path('register/', views_auth.register, name='register_users'),
     path('login/', auth_views_contrib.LoginView.as_view(template_name="users_auth/login.html"), name='login_users'),
     path('logout/', auth_views_contrib.LogoutView.as_view(template_name="users_auth/logout.html"), name='logout_users'),
-    path('polls/', include("polls.urls")),
     path('admin/', admin.site.urls),
     path('profile/', views_auth.profile, name='profile'),
 ] + debug_toolbar_urls()

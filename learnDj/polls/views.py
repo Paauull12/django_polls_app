@@ -129,7 +129,10 @@ def edit_question(request, question_id):
         formset = ChoiceFormSet(request.POST, queryset=Choice.objects.filter(question=question))
 
         if question_form.is_valid() and formset.is_valid():
+            # Save the question form
             question_form.save()
+
+            # Save the choice forms
             for form in formset:
                 if form.cleaned_data.get('DELETE'):
                     form.instance.delete()
