@@ -1,0 +1,77 @@
+
+{% extends "polls/base.html" %}
+{% load group_filters %}
+
+{% block content %}
+    <br>
+    <br>
+    <ul>
+        {% if user.is_authenticated %}
+                {% if user|has_group:"Paid" %}
+                    <a href="{% url 'polls:add_question' %}" class="btn btn-primary">Add Question</a>
+                    <br>
+                    <br>
+                {% endif %}
+
+                {% if allowed_context_count_adults == 0 and allowed_context_count_minor == 0 %}
+                    <h3>No questions available at the moment.</h3>
+                {% else %}
+                    {% if user|has_group:"Adult" %}
+                    <h3>Adult category: </h3>
+                    <br>
+                        {% for question in latest_question_list %}
+                            {% if question.is_allowed and question.is_for_adults %}
+                                <div class="card border border-primary">
+                                    <div class="card-header">
+                                        {{ question.question_text }}
+                                        {% if user == question.user %}
+                                            <a href="{% url 'polls:edit_question' question.id %}" style=" margin-left: 40px;">Update question!</a>
+                                            <a href="{% url 'polls:delete_question' question.id %}" style=" margin-left: 40px;">Delete question!</a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Catch phrase</h5>
+                                        <p class="card-text">Description.</p>
+                                        <a href="{% url 'polls:detail' question.id %}" class="btn btn-primary">View and vote!</a>
+                                    </div>
+                                </div>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <h3>Minor category: </h3>
+                    <br>
+                        {% for question in latest_question_list %}
+                            {% if question.is_allowed and question.is_for_adults == False %}
+                                <div class="card border border-primary">
+                                    <div class="card-header">
+                                        {{ question.question_text }}
+                                        {% if user == question.user %}
+                                            <a href="{% url 'polls:edit_question' question.id %}" style=" margin-left: 40px;">Update question!</a>
+                                            <a href="{% url 'polls:delete_question' question.id %}" style=" margin-left: 40px;">Delete question!</a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Catch phrase</h5>
+                                        <p class="card-text">Description.</p>
+                                        <a href="{% url 'polls:detail' question.id %}" class="btn btn-primary">View and vote!</a>
+                                    </div>
+                                </div>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+
+
+                {% endif %}
+
+            {% else %}
+            <h1 class="my-4 text-center">Be so kind and register or login!</h1>
+            <div class="d-flex justify-content-center">
+                <a href="{% url 'login_users' %}" class="btn btn-primary mx-2">Login</a>
+                <a href="{% url 'register_users' %}" class="btn btn-secondary mx-2">Register</a>
+            </div>
+
+        {% endif %}
+    </ul>
+{% endblock content %}

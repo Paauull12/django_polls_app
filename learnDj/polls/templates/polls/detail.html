@@ -1,0 +1,81 @@
+{% extends "polls/base.html" %}
+{% load group_filters %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h1>{{ question.question_text }}</h1>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'polls:vote' question.id %}" method="post">
+                {% csrf_token %}
+                {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>{{ error_message }}</strong>
+                    </div>
+                {% endif %}
+                {% if user_has_voted %}
+                    <p>You have already voted on this question.</p>
+                    <br>
+                    <a href="{% url 'polls:results' question.id %}" class="btn btn-primary">View Results</a>
+                {% else %}
+                    <form action="{% url 'polls:vote' question.id %}" method="post">
+                        {% csrf_token %}
+                        {% if error_message %}
+                            <div class="alert alert-danger" role="alert">
+                                <strong>{{ error_message }}</strong>
+                            </div>
+                        {% endif %}
+                        <fieldset class="form-group">
+                            {% for choice in question.choice_set.all %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+                                    <label class="form-check-label" for="choice{{ forloop.counter }}">
+                                        {{ choice.choice_text }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </fieldset>
+                        <br>
+                        <button type="submit" class="btn btn-primary">Vote</button>
+                    </form>
+                {% endif %}
+            </form>
+        </div>
+        <h2>Comments</h2>
+        <ul>
+        {% for comment in comments %}
+            <li>
+                <strong>{{ comment.user.username }}</strong>: {{ comment.text }}
+                {% if user == comment.user %}
+                    <a href="{% url 'polls:edit_comment' comment.id %}" style=" margin-left: 40px;">Update Comment!</a>
+                    <a href="{% url 'polls:delete_comment' comment.id %}" style=" margin-left: 40px;">Delete Comment!</a>
+                {% endif %}
+                <div class="like-section">
+                    <form method="post" action="{% url 'polls:like_comment' comment.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-success">
+                            Like
+                        </button>
+                    </form>
+                    <span>{{ comment.likes.count }} likes</span>
+                </div>
+            </li>
+        {% empty %}
+            <h4>No comments yet.</h4>
+        {% endfor %}
+
+        </ul>
+
+        <br>
+        <br>
+        {% if user.is_authenticated and user|has_group:"Paid" %}
+            <a href="{% url 'polls:add_comment' question.id %}" class="btn btn-primary">Add a Comment</a>
+        {% else %}
+            <p>You need to upgrade to premium if you want to be able to comment. <a href="#">Upgrade ?</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
